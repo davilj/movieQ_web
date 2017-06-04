@@ -6,7 +6,9 @@ import {
 import {
   Nav,
   NavItem,
-  Navbar
+  Navbar,
+  NavDropdown,
+  MenuItem,
 } from 'react-bootstrap';
 import { CognitoUserPool, } from 'amazon-cognito-identity-js';
 import Routes from './Routes';
@@ -22,6 +24,7 @@ class App extends Component {
     this.state = {
       userToken: null,
       isLoadingUserToken: true,
+      movieQuest: null,
     };
   }
 
@@ -70,6 +73,25 @@ class App extends Component {
     });
   }
 
+  getRandomMovie(year){
+    var movie =  {
+              name:'Rams',
+              names:['Rams','Star wars', 'Here comes the boom', 'Grownups', 'American Pie', 'Up', 'Wally', 'Lion King', 'Tron', 'Lord of the Rings'],
+              posters: ['movies/Rams_0.jpg', 'movies/Rams_1.jpg', 'movies/Rams_2.jpg', 'movies/Rams_3.jpg', 'movies/Rams_4.jpg', 'movies/Rams.jpg' ]
+            };
+    return movie;
+  };
+
+  handlePosterClick = (event) => {
+    event.preventDefault();
+    //todo: extract year
+    var randomMovie = this.getRandomMovie("2017")
+    this.setState({
+      movie : randomMovie
+    });
+    this.props.history.push(event.currentTarget.getAttribute('href'));
+  }
+
   handleNavLink = (event) => {
     event.preventDefault();
     this.props.history.push(event.currentTarget.getAttribute('href'));
@@ -89,6 +111,7 @@ class App extends Component {
     const childProps = {
       userToken: this.state.userToken,
       updateUserToken: this.updateUserToken,
+      movie: this.state.movie,
     };
 
     return ! this.state.isLoadingUserToken
@@ -98,10 +121,16 @@ class App extends Component {
         <Navbar fluid collapseOnSelect>
           <Navbar.Header>
             <Navbar.Brand>
-              <Link to="/">Scratch</Link>
+              <Link to="/">MovieQ</Link>
             </Navbar.Brand>
             <Navbar.Toggle />
           </Navbar.Header>
+          <Nav>
+            <NavDropdown eventKey={3} title="Posters" id="basic-nav-dropdown">
+              <MenuItem eventKey={3.1} onClick={this.handlePosterClick} href="/Poster?year=2017">2017</MenuItem>
+              <MenuItem eventKey={3.2} onClick={this.handlePosterClick} href="/Poster?year=2016">2016</MenuItem>
+            </NavDropdown>
+          </Nav>
           <Navbar.Collapse>
             <Nav pullRight>
               { this.state.userToken
