@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {
-  ProgressBar,Button, ButtonGroup, Modal, Panel
+  ProgressBar,Button, ButtonGroup, Modal, Panel, Well, Alert
 } from 'react-bootstrap';
 
 import './Poster.css';
@@ -14,6 +14,8 @@ class Poster extends Component {
       index : 0,
       movie : null,
       points : 100,
+      win : false,
+      lost : false,
     };
   };
 
@@ -28,17 +30,28 @@ class Poster extends Component {
   }
 
   renderPosterButton = (index) => {
+    //win, lost == false game still on
+    if (this.state.win || this.state.lost) {
+        return;
+    }
+
     var posterImg = this.props.movie.posters[index];
 
     return (
-        <div ref='posterDiv'><img alt='image of movie poster' src={posterImg}/><Button onClick={this.handleReadySelect.bind(this, index)}>Ready...</Button></div>
+        <Well ref='posterDiv' className='vertical-center'>
+          <img alt='image of movie poster' src={posterImg}/>
+          <Button onClick={this.handleReadySelect.bind(this, index)}>Ready...</Button>
+        </Well>
     );
   };
 
   handleMovieSelection = (name) => {
     var actual = this.props.movie.name;
     if (name===actual) {
-      alert("Yippeeee");
+      this.setState({
+        showModal: false,
+        win: true,
+      });
     } else {
       var index = this.state.index;
       var points = this.state.points;
@@ -46,12 +59,22 @@ class Poster extends Component {
       index = index + 1;
 
       var poster = this.refs['posterDiv']
-      poster.hidden=false;
-      this.setState({
-        index : index,
-        points : points,
-        showModal: false,
-      });
+      if (points>0) {
+        poster.hidden=false;
+        this.setState({
+          index : index,
+          points : points,
+          showModal: false,
+        });
+      } else {
+        poster.hidden=true;
+        this.setState({
+          index : index,
+          points : points,
+          showModal: false,
+          lost: true,
+        });
+      }
     }
   }
 
@@ -78,16 +101,39 @@ class Poster extends Component {
     );
   };
 
+  renderFeedback() {
+    var points = this.state.points;
+    var win = this.state.win;
+    var lost = this.state.lost;
+
+    if (win) {
+      return (
+        <Alert bsStyle="success" onDismiss={this.handleEnd}>
+          <h4>You did it...., you scored {points} points</h4>
+          <Button onClick={this.handleEnd}>Next one</Button>
+        </Alert>
+      )
+    }
+
+    if (lost) {
+      return (
+        <Alert bsStyle="error" onDismiss={this.handleEnd}>
+          <h4>Oops, not so good!!!</h4>
+          <Button onClick={this.handleEnd}>Next one</Button>
+        </Alert>
+      )
+    }
+  }
+
   render() {
     var points = this.state.points;
     var index = this.state.index;
 
-    var pStyles = ['success','success','warning','warning','red','red']
+    var pStyles = ['success','success','warning','warning','danger','danger']
 
     return (
       <div className="Home">
-        <Panel className="lander">
-          <h3>Poster Quest</h3>
+        <Panel header='Poster Quest'>
           <ProgressBar bsStyle={pStyles[index]} now={points} />
           {this.renderPosterButton(this.state.index)}
         </Panel>
@@ -97,11 +143,14 @@ class Poster extends Component {
             <Modal.Header>
               <Modal.Title>Poster for which movie?</Modal.Title>
             </Modal.Header>
-                {this.renderMovieSelection()}
             <Modal.Body>
-
+              {this.renderMovieSelection()}
             </Modal.Body>
           </Modal>
+        </div>
+
+        <div id='selectMovieWin'>
+          {this.renderFeedback()}
         </div>
       </div>
     );
