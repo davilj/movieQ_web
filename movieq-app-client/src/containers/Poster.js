@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {
-  ProgressBar,Button, ButtonGroup, Modal, Panel, Well, Alert
+  ProgressBar,Button, ButtonGroup, Modal, Panel, Well, Alert, Badge, Thumbnail, Glyphicon
 } from 'react-bootstrap';
 
 import './Poster.css';
@@ -31,17 +31,19 @@ class Poster extends Component {
 
   renderPosterButton = (index) => {
     //win, lost == false game still on
+
     if (this.state.win || this.state.lost) {
         return;
     }
 
+
+
     var posterImg = this.props.movie.posters[index];
 
     return (
-        <Well ref='posterDiv' className='vertical-center'>
-          <img alt='image of movie poster' src={posterImg}/>
-          <Button onClick={this.handleReadySelect.bind(this, index)}>Ready...</Button>
-        </Well>
+          <Thumbnail ref='posterDiv' src={posterImg} >
+            <Button bsSize="large" onClick={this.handleReadySelect.bind(this, index)}>Let me quess<Glyphicon glyph="hand-up" /></Button>
+          </Thumbnail>
     );
   };
 
@@ -101,6 +103,11 @@ class Poster extends Component {
     );
   };
 
+  handleEnd() {
+    //todo update server
+    window.location = '/';
+  };
+
   renderFeedback() {
     var points = this.state.points;
     var win = this.state.win;
@@ -109,7 +116,7 @@ class Poster extends Component {
     if (win) {
       return (
         <Alert bsStyle="success" onDismiss={this.handleEnd}>
-          <h4>You did it...., you scored {points} points</h4>
+          <h4>You did it...., you scored {points} points <Glyphicon glyph="thumbs-up" /></h4>
           <Button onClick={this.handleEnd}>Next one</Button>
         </Alert>
       )
@@ -117,8 +124,8 @@ class Poster extends Component {
 
     if (lost) {
       return (
-        <Alert bsStyle="error" onDismiss={this.handleEnd}>
-          <h4>Oops, not so good!!!</h4>
+        <Alert bsStyle="danger" onDismiss={this.handleEnd}>
+          <h4>Nope, you will never know <Glyphicon glyph="thumbs-down" /></h4>
           <Button onClick={this.handleEnd}>Next one</Button>
         </Alert>
       )
@@ -128,6 +135,9 @@ class Poster extends Component {
   render() {
     var points = this.state.points;
     var index = this.state.index;
+    if (this.props.movie==null) {
+      window.location = '/';
+    }
 
     var pStyles = ['success','success','warning','warning','danger','danger']
 
@@ -155,8 +165,6 @@ class Poster extends Component {
       </div>
     );
   }
-
-
 }
 
 export default Poster;
