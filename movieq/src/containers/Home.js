@@ -7,7 +7,7 @@ class Home extends Component {
       <div className="Home">
         <div className="lander">
           <h1>Movie Q</h1>
-          <p>Test you movie knowledge</p>
+          <p>Test you movie knowledge...</p>
         </div>
       </div>
     );
