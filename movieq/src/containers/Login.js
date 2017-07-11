@@ -47,6 +47,7 @@ class Login extends Component {
       this.props.history.push('/');
     }
     catch(e) {
+      this.setState({ isLoading: false, password: '', });
       alert(e);
     }
   }
