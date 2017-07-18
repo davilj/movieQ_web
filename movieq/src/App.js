@@ -1,28 +1,57 @@
 import React, { Component } from 'react';
-import RouteNavItem from './components/RouteNavItem';
-import Routes from './Routes';
 import {
   withRouter,
   Link
 } from 'react-router-dom';
 import {
   Nav,
+  NavItem,
   Navbar,
-  NavItem
+  NavDropdown,
+  MenuItem,
 } from 'react-bootstrap';
-import './App.css';
 import { CognitoUserPool, } from 'amazon-cognito-identity-js';
+import Routes from './Routes';
+import RouteNavItem from './components/RouteNavItem';
+import { invokeApig } from './libs/awsLib';
 import config from './config.js';
-
+import './App.css';
 
 class App extends Component {
+
   constructor(props) {
     super(props);
 
     this.state = {
       userToken: null,
       isLoadingUserToken: true,
+      movieQuest: null,
     };
+  }
+
+  async componentDidMount() {
+    const currentUser = this.getCurrentUser();
+
+    if (currentUser === null) {
+      this.setState({isLoadingUserToken: false});
+      return;
+    }
+
+    try {
+      const userToken = await this.getUserToken(currentUser);
+      this.updateUserToken(userToken);
+    }
+    catch(e) {
+      alert(e);
+    }
+
+    this.setState({isLoadingUserToken: false});
+  }
+
+  updateUserToken = (userToken) => {
+    this.setState({
+      userToken: userToken
+    });
   }
 
   getCurrentUser() {
@@ -45,34 +74,18 @@ class App extends Component {
     });
   }
 
-  updateUserToken = (userToken) => {
-    this.setState({
-      userToken: userToken
-    });
-  }
-
-  async componentDidMount() {
-    const currentUser = this.getCurrentUser();
-
-    if (currentUser === null) {
-      this.setState({isLoadingUserToken: false});
-      return;
-    }
-
-    try {
-      const userToken = await this.getUserToken(currentUser);
-      this.updateUserToken(userToken);
-    }
-    catch(e) {
-      alert(e);
-    }
-
-    this.setState({isLoadingUserToken: false});
-  }
-
   handleNavLink = (event) => {
     event.preventDefault();
     this.props.history.push(event.currentTarget.getAttribute('href'));
+  }
+
+  handlePosterSelect = (event) => {
+    event.preventDefault();
+    var url = event.currentTarget.getAttribute('href');
+    this.setState({
+      movieQuest: url
+    });
+    this.props.history.push("/poster");
   }
 
   handleLogout = (event) => {
@@ -89,6 +102,7 @@ class App extends Component {
     const childProps = {
       userToken: this.state.userToken,
       updateUserToken: this.updateUserToken,
+      movieQuest: this.state.movieQuest,
     };
 
     return ! this.state.isLoadingUserToken
@@ -98,10 +112,16 @@ class App extends Component {
         <Navbar fluid collapseOnSelect>
           <Navbar.Header>
             <Navbar.Brand>
-              <Link to="/">Scratch</Link>
+              <Link to="/">MovieQ</Link>
             </Navbar.Brand>
             <Navbar.Toggle />
           </Navbar.Header>
+          <Nav>
+            <NavDropdown eventKey={3} title="Posters" id="basic-nav-dropdown">
+              <MenuItem eventKey={3.1} onClick={this.handlePosterSelect} href="/poster?year=2017">2017</MenuItem>
+              <MenuItem eventKey={3.2} onClick={this.handlePosterSelect} href="/poster?year=2016">2016</MenuItem>
+            </NavDropdown>
+          </Nav>
           <Navbar.Collapse>
             <Nav pullRight>
               { this.state.userToken
@@ -115,5 +135,7 @@ class App extends Component {
       </div>
     );
   }
+
 }
+
 export default withRouter(App);
