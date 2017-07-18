@@ -96,11 +96,14 @@ class Poster extends Component {
         return;
     }
     var posterImg = this.state.poster.img
+    var blurClass = 'blur' + (6-index);
+
 
     return (
-          <Thumbnail ref='posterDiv' src={posterImg} >
+          <div>
+            <Thumbnail ref='posterDiv' className={blurClass} src={posterImg} ></Thumbnail>
             <Button bsSize="large" onClick={this.handleReadySelect.bind(this, index)}>Let me quess<Glyphicon glyph="hand-up" /></Button>
-          </Thumbnail>
+          </div>
     );
   };
 
