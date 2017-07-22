@@ -36,7 +36,7 @@ class Poster extends Component {
 
       this.setState({
         posters: results.posters,
-        poster: poster
+        poster: poster,
       });
     }
     catch(e) {
@@ -52,7 +52,7 @@ class Poster extends Component {
   }
 
   getPosterImg(id) {
-    return 	'http://s3.amazonaws.com/movieq/posters/2016/p21022.jpg'
+    return 	'http://s3.amazonaws.com/movieq/posters/2016/' + id + ".jpg"
   }
 
   extractPosterId(posterArr, index) {
@@ -97,12 +97,14 @@ class Poster extends Component {
     }
     var posterImg = this.state.poster.img
     var blurClass = 'blur' + (6-index);
-
+    var divStyle = {
+      zIndex: '100',
+    };
 
     return (
           <div>
             <Thumbnail ref='posterDiv' className={blurClass} src={posterImg} ></Thumbnail>
-            <Button bsSize="large" onClick={this.handleReadySelect.bind(this, index)}>Let me quess<Glyphicon glyph="hand-up" /></Button>
+            <Button bsSize="large" style={divStyle} onClick={this.handleReadySelect.bind(this, index)}>Let me quess<Glyphicon glyph="hand-up" /></Button>
           </div>
     );
   };
@@ -147,7 +149,11 @@ class Poster extends Component {
   };
 
   renderMovieSelection() {
-    var options = this.state.poster.options
+    var options = this.state.poster.options;
+    var name = this.state.poster.name;
+    options.push(name);
+    this.shuffle(options);
+
     var tmp=[];
 
     var numberOfOptions = options.length;
@@ -166,6 +172,23 @@ class Poster extends Component {
   handleEnd() {
     //todo update server
     window.location = '/';
+
+  };
+
+  renderPoints() {
+    var score = this.state.points;
+    var divStyle = {
+      position: 'absolute',
+      top: '10px',
+      left: '10px',
+      fontSize: '500px',
+      fontWeight: 'bolder',
+      zIndex: '-10',
+      opacity: '0.1'
+    };
+    return (
+      <h1 style={divStyle}>{score}</h1>
+    )
   };
 
   renderFeedback() {
@@ -177,7 +200,7 @@ class Poster extends Component {
       return (
         <Alert bsStyle="success" onDismiss={this.handleEnd}>
           <h4>You did it...., you scored {points} points <Glyphicon glyph="thumbs-up" /></h4>
-          <Button onClick={this.handleEnd}>Next one</Button>
+          <Button onClick={this.handleEnd}>Next challenge</Button>
         </Alert>
       )
     }
@@ -186,11 +209,30 @@ class Poster extends Component {
       return (
         <Alert bsStyle="danger" onDismiss={this.handleEnd}>
           <h4>Nope, you will never know <Glyphicon glyph="thumbs-down" /></h4>
-          <Button onClick={this.handleEnd}>Next one</Button>
+          <Button onClick={this.handleEnd}>Try something different</Button>
         </Alert>
       )
     }
-  }
+  };
+
+  shuffle(array) {
+    var currentIndex = array.length, temporaryValue, randomIndex;
+
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
+
+      // Pick a remaining element...
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex -= 1;
+
+      // And swap it with the current element.
+      temporaryValue = array[currentIndex];
+      array[currentIndex] = array[randomIndex];
+      array[randomIndex] = temporaryValue;
+    }
+
+    return array;
+  };
 
   render() {
     var points = this.state.points;
@@ -209,7 +251,7 @@ class Poster extends Component {
           {this.renderPosterButton(this.state.index)}
         </Panel>
 
-        <div id='selectMovie'>
+        <div id='selectMovie' >
           <Modal show={this.state.showModal}>
             <Modal.Header>
               <Modal.Title>Poster for which movie?</Modal.Title>
@@ -222,6 +264,10 @@ class Poster extends Component {
 
         <div id='selectMovieWin'>
           {this.renderFeedback()}
+        </div>
+
+        <div id='currentScore'>
+          {this.renderPoints()}
         </div>
       </div>
     );
