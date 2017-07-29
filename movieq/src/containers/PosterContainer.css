@@ -1,0 +1,23 @@
+.blur1 {
+
+}
+
+.blur2 {
+   filter:blur(3px);
+}
+
+.blur3 {
+   filter:blur(5px);
+}
+
+.blur4 {
+   filter:blur(7px);
+}
+
+.blur5 {
+   filter:blur(9px);
+}
+
+.blur6 {
+   filter:blur(11px);
+}

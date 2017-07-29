@@ -98,6 +98,17 @@ class App extends Component {
     this.updateUserToken(null);
   }
 
+  handlePoster = (userToken) => {
+    if (userToken) {
+      return (
+        <NavDropdown eventKey={3} title="Posters" id="basic-nav-dropdown">
+          <MenuItem eventKey={3.1} onClick={this.handlePosterSelect} href="/poster?year=2017">2017</MenuItem>
+          <MenuItem eventKey={3.2} onClick={this.handlePosterSelect} href="/poster?year=2016">2016</MenuItem>
+        </NavDropdown>
+      )
+    }
+  }
+
   render() {
     const childProps = {
       userToken: this.state.userToken,
@@ -117,10 +128,7 @@ class App extends Component {
             <Navbar.Toggle />
           </Navbar.Header>
           <Nav>
-            <NavDropdown eventKey={3} title="Posters" id="basic-nav-dropdown">
-              <MenuItem eventKey={3.1} onClick={this.handlePosterSelect} href="/poster?year=2017">2017</MenuItem>
-              <MenuItem eventKey={3.2} onClick={this.handlePosterSelect} href="/poster?year=2016">2016</MenuItem>
-            </NavDropdown>
+            {this.handlePoster(this.state.userToken)}
           </Nav>
           <Navbar.Collapse>
             <Nav pullRight>
